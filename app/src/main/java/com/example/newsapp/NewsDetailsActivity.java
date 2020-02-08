@@ -1,7 +1,5 @@
 package com.example.newsapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -11,8 +9,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import androidx.appcompat.widget.Toolbar;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
@@ -40,17 +39,18 @@ public class NewsDetailsActivity extends AppCompatActivity implements AppBarLayo
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
+        //show an arrow to the left indicating the action that will be taken. Set this flag if selecting the 'home' button in the action bar to return up by a single level in your UI rather than back to the top level or front page.
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        final CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle("");
 
         appBarLayout =findViewById(R.id.appbar);
-        appBarLayout.addOnOffsetChangedListener(this);
+        appBarLayout.addOnOffsetChangedListener(this); // to be sure that the toolbar is collapsed
 
-        date_behaviour = findViewById(R.id.date_behavior);
-        title_appbar =findViewById(R.id.title_appbar);
-        imageView = findViewById(R.id.backdrop);
+        date_behaviour = findViewById(R.id.date_behavior); // frame layout
+        title_appbar =findViewById(R.id.title_appbar); // linearlayout
+        imageView = findViewById(R.id.backdrop);     // the big image
         appbar_title= findViewById(R.id.title_on_appbar);
         subbar_title = findViewById(R.id.subtitle_on_appbar);
         date=findViewById(R.id.date);
@@ -110,7 +110,7 @@ public class NewsDetailsActivity extends AppCompatActivity implements AppBarLayo
 
 
 
-    @Override
+   @Override
     public void onBackPressed() {
         super.onBackPressed();
         supportFinishAfterTransition();

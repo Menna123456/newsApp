@@ -1,26 +1,28 @@
 package com.example.newsapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import android.content.Intent;
-import android.view.View;
-import android.widget.SearchView;
-
 import android.app.SearchManager;
 import android.content.Context;
-import android.media.Image;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.newsapp.Adapter.Adapter;
 import com.example.newsapp.Interface.ResponseInterface;
@@ -57,15 +59,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setContentView(R.layout.activity_main);
         
 
-       swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
+       swipeRefreshLayout = findViewById(R.id.swipeLayout);
+       //adds a listener to let other parts of the code know when refreshing begins.
        swipeRefreshLayout.setOnRefreshListener(this);
        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
 
 
-        recyclerView = (RecyclerView) findViewById(R.id.resultlist);
+        recyclerView = findViewById(R.id.resultlist);
+        // use a linear layout manager
         LayoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(LayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        //do not change the layout size of the RecyclerView
         recyclerView.setHasFixedSize(true);
         recyclerView.setNestedScrollingEnabled(false);
 
@@ -86,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void loadJson (final String keyword)
     {
 
-
+        //Refresh the layout
         swipeRefreshLayout.setRefreshing(true);
         ResponseInterface responseInterface = apiClient.getApiClient().create(ResponseInterface.class);
 
@@ -165,6 +170,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         adapter.setOnItemClickListener(new Adapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+              ImageView imageView = view.findViewById(R.id.img);
+
                 Intent intent = new Intent(MainActivity.this , NewsDetailsActivity.class);
 
                 Articles article = articles.get(position);
@@ -175,8 +182,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 intent.putExtra("img" , article.getUrlToImage());
                 intent.putExtra("title" , article.getTitle());
 
+                Pair<View, String> p1 = Pair.create((View)imageView, ViewCompat.getTransitionName(imageView));
+                ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this , p1);
 
-               startActivity(intent);
+
+               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+                    startActivity(intent,optionsCompat.toBundle());
+               }else {
+                    startActivity(intent);
+               }
+
 
             }
         });
