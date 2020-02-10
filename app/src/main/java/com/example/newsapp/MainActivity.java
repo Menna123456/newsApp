@@ -9,11 +9,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityOptionsCompat;
@@ -47,6 +49,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private String Tag =MainActivity.class.getSimpleName();
 
 
+    private RelativeLayout errorLayout;
+    private ImageView errorImage;
+    private TextView errorTitle, errorMessage ;
+    private Button retryButton;
     
     private EditText searchText;
     private ImageButton srchBtn;
@@ -57,9 +63,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
 
-       swipeRefreshLayout = findViewById(R.id.swipeLayout);
+
+
+        errorLayout = (RelativeLayout) findViewById(R.id.error_layout);
+        errorImage = (ImageView) findViewById(R.id.errorimg);
+        errorTitle = (TextView) findViewById(R.id.error_title);
+        errorMessage = (TextView) findViewById(R.id.error_message);
+        retryButton = (Button)  findViewById(R.id.retrybtn);
+
+
+        swipeRefreshLayout = findViewById(R.id.swipeLayout);
        //adds a listener to let other parts of the code know when refreshing begins.
        swipeRefreshLayout.setOnRefreshListener(this);
        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
@@ -90,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     public void loadJson (final String keyword)
     {
-
+        errorLayout.setVisibility(View.GONE);
         //Refresh the layout
         swipeRefreshLayout.setRefreshing(true);
         ResponseInterface responseInterface = apiClient.getApiClient().create(ResponseInterface.class);
@@ -145,7 +159,24 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }else{
                     swipeRefreshLayout.setRefreshing(false);
 
-                    Toast.makeText(MainActivity.this , "No Result Found !" , Toast.LENGTH_LONG).show();
+                    String errorCode;
+                    switch(response.code())
+                    {
+                        case  404:
+                            errorCode = "404 not found";
+                            break;
+
+                        case 500:
+                            errorCode="500 server broken";
+                            break;
+
+                         default:
+                             errorCode="unknown error";
+                             break;
+
+                    }
+
+                    showErrorMessage(R.drawable.noresult_ic , "No Result" , "Please Try Again"+"\n" + errorCode);
 
                 }
 
@@ -156,8 +187,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
                 swipeRefreshLayout.setRefreshing(false);
 
-                Toast.makeText(MainActivity.this , "failed" +
-                        "!" , Toast.LENGTH_LONG).show();
+                showErrorMessage(R.drawable.noresult_ic , "oops!" , "Network failure, Please Try Again"+"\n"+t.toString());
+
 
             }
         });
@@ -254,4 +285,31 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }
         );
     }
+
+
+    public void showErrorMessage (int imageView ,  String title , String message )
+    {
+
+        if (errorLayout.getVisibility()==View.GONE)
+        {
+            errorLayout.setVisibility(View.VISIBLE);
+        }
+
+
+        errorImage.setImageResource(imageView);
+        errorTitle.setText(title);
+        errorMessage.setText(message);
+
+        retryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onLoadingSwipeRefresh("");
+            }
+        });
+
+
+    }
+
+
+
 }

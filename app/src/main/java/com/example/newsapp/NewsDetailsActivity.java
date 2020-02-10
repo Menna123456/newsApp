@@ -1,7 +1,10 @@
 package com.example.newsapp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -9,7 +12,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -142,8 +147,60 @@ public class NewsDetailsActivity extends AppCompatActivity implements AppBarLayo
 
  }
 
-
-
-
     }
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.menu_news , menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+
+        int id = item.getItemId();
+        if (id == R.id.web_view){
+
+            // open a link in a browser using an intent
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(mUrl));
+            startActivity(intent);
+            return true;
+
+
+        }else if (id == R.id.share_ic){
+
+            try {
+
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plan");
+
+                //subject and body of the mail to be send
+                intent.putExtra(Intent.EXTRA_SUBJECT, mSource);
+                String body = mTitle+"\n"+mUrl+"\n"+"Share from the news app "+ "\n";
+                intent.putExtra(Intent.EXTRA_TEXT , body);
+
+               // In order to display the Android Sharesheet you need to call
+                startActivity(Intent.createChooser(intent , "Share with :"));
+
+
+            }catch(Exception e )
+            {
+                Toast.makeText(this , "Sorry cannot be share !! " , Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+
 }
